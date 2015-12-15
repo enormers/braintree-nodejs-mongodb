@@ -1,0 +1,157 @@
+<html lang="en">
+  <head>
+  
+  	<style>
+  		body {
+  		
+			font-family: arial; 
+			  		
+  		}
+		input[type=submit]
+		{
+	
+			font-size: 30px; 
+			font-weight: bold;
+			background-color: #4aa3df;
+			color:#fff;
+			padding:10px;
+			display:none;
+			width:100%;			
+		}
+		input[type=text]
+		{
+			text-align:center;
+			font-size: 30px; 
+			background-color: #fff;
+			padding:10px;		
+			display:none;
+			width:100%;
+		}		
+  	</style>
+  </head>
+  
+  <body>
+  	<div style="margin:100px">
+  	
+  		<p style="font-size:30px" id="loading">
+  		
+  			Please wait ...
+  			
+  		</p>
+  		
+		<div id="dropin-container"></div>
+		<form id="checkout-form">
+			<input type='text' placeholder='Name' id="textName"/>
+			<input type='text' placeholder='Email' id="textEmail"/>		
+		    <input type='submit' value='Pay me $10 :)' id="btnPay"/>
+		</form>
+	     	
+       
+    </div> 	      	
+     
+    <script src="asset/js/vendor/jquery-1.11.3.min.js"></script>  
+	<script src="https://js.braintreegateway.com/v2/braintree.js"></script>  	     
+
+    <script>
+    
+		$(document).ready(function() {
+		
+				// get braintree client token
+				$.ajax({
+
+					url: 'http://127.0.0.1:8008/client_token',
+					type: 'GET',
+					dataType: 'TEXT'
+			
+				}).done(function (token) {
+				
+					var amount = 10.00;
+		
+					braintree.setup(token, "dropin", {
+					  container: "dropin-container",
+					  form: "checkout-form",
+					  onPaymentMethodReceived: function (obj) {
+
+							var name = $('#textName').val().trim(), email = $('#textEmail').val().trim();
+							
+							$.ajax({
+
+								url: 'http://127.0.0.1:8008/save-payment',
+								type: 'POST',
+								dataType: 'JSON',
+								data: {name:name,email:email,amount:amount,nonce:obj.nonce}
+			
+							}).done(function (result) {
+				
+								if(result.status !== 200) {
+								
+									$('#btnPay, #textName, #textEmail').show();
+								
+								} else {
+								
+									$('#btnPay, #textName, #textEmail').remove();
+								
+								}
+								
+								$('#loading').hide();						
+								
+								alert(result.text);
+				
+							});							
+							
+					  },
+					  paypal: {
+						singleUse: true,
+						amount: amount,
+						currency: 'USD'
+					  },					  
+					  onReady :	function (result) {
+
+						 $('#btnPay, #textName, #textEmail').show();
+						 
+						 $('#loading').hide();
+
+					  },
+					  onError :	function (err) {
+
+						console.dir(err);
+						
+					  } 				  
+					});					
+		
+				});		
+				
+				$('#btnPay').click(function(e) {	
+				
+					var name = $('#textName').val().trim(), email = $('#textEmail').val().trim();
+					
+					if(!name || !email) {
+					
+						alert('Enter your name and email dude !');
+					
+						return false;
+					
+					} else {
+					
+						$('#loading').show();						
+					
+						$('#btnPay, #textName, #textEmail').hide();
+					
+					}
+
+				
+				});
+
+		});    
+    
+    </script>
+    
+  </body>
+  
+</html>
+
+
+
+
+
+                        
