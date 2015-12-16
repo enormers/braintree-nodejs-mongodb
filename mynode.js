@@ -76,13 +76,14 @@ app.post("/save-payment", function (req, res) {
 	gateway.transaction.sale({
 	  amount: amount,
 	  paymentMethodNonce: nonce,
+      merchantAccountId: 'merchantAccountIdUSD'
 	}, function (err, result) {
 	
 		if(!err) {
 		
 			if(result.success) { // insert a record into user collection is success
                 
-                // check if email exist.
+                // check if email exist
                 dbCollectionsUser.findOne({email:email}, {email:1},function(err, user) {
                     
                     if(user) { // exisiting user
