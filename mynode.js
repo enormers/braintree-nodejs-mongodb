@@ -88,7 +88,11 @@ app.post("/save-payment", function (req, res) {
                     
                     if(user) { // exisiting user
                         
-                        var payment = {date_paid:new Date(), amount:result.transaction.amount, txnid:result.transaction.id};
+                        var payment = {
+                            date_paid:new Date(), 
+                            amount:result.transaction.amount, 
+                            txnid:result.transaction.id
+                        };
                         
                         dbCollectionsUser.update(
                             {_id:user._id},
